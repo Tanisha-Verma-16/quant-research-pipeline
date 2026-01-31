@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quant Research Platform - Test UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Header -->
+    <div class="bg-gray-800 border-b border-gray-700 p-4">
+      <div class="max-w-7xl mx-auto">
+        <h1 class="text-2xl font-bold text-blue-400">
+          📊 Quantitative Research Platform
+        </h1>
+        <p class="text-gray-400 text-sm mt-1">
+          Testing Interface for API Endpoints
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+      <!-- API Status -->
+      <div class="bg-gray-800 rounded-lg p-4 mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-semibold">API Status</h2>
+            <p class="text-sm text-gray-400">http://localhost:8000</p>
+          </div>
+          <div
+            id="api-status"
+            class="px-4 py-2 rounded-full text-sm font-medium bg-gray-700 text-gray-300"
+          >
+            Checking...
+          </div>
+        </div>
+      </div>
+
+      <!-- Ticker Input -->
+      <div class="bg-gray-800 rounded-lg p-4 mb-6">
+        <label class="block text-sm font-medium mb-2">Select Ticker</label>
+        <div class="flex gap-3">
+          <select
+            id="ticker-select"
+            class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Loading tickers...</option>
+          </select>
+          <button
+            onclick="loadTickers()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="mb-4">
+        <div class="flex gap-2 border-b border-gray-700">
+          <button
+            onclick="switchTab('regime')"
+            id="tab-regime"
+            class="px-4 py-2 font-medium border-b-2 border-blue-500 text-blue-400"
+          >
+            Regime Prediction
+          </button>
+          <button
+            onclick="switchTab('strategy')"
+            id="tab-strategy"
+            class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200"
+          >
+            Strategy
+          </button>
+          <button
+            onclick="switchTab('summary')"
+            id="tab-summary"
+            class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200"
+          >
+            Executive Summary
+          </button>
+          <button
+            onclick="switchTab('montecarlo')"
+            id="tab-montecarlo"
+            class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200"
+          >
+            Monte Carlo
+          </button>
+          <button
+            onclick="switchTab('analysis')"
+            id="tab-analysis"
+            class="px-4 py-2 font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200"
+          >
+            Full Analysis
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="content-area" class="bg-gray-800 rounded-lg p-6 min-h-96">
+        <p class="text-gray-400">Select a ticker and tab to begin testing...</p>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8000";
+      let currentTab = "regime";
+
+      // Check API status
+      async function checkAPIStatus() {
+        try {
+          const response = await fetch(`${API_BASE}/`);
+          const data = await response.json();
+          document.getElementById("api-status").innerHTML = "🟢 Online";
+          document.getElementById("api-status").className =
+            "px-4 py-2 rounded-full text-sm font-medium bg-green-900 text-green-300";
+          loadTickers();
+        } catch (error) {
+          document.getElementById("api-status").innerHTML = "🔴 Offline";
+          document.getElementById("api-status").className =
+            "px-4 py-2 rounded-full text-sm font-medium bg-red-900 text-red-300";
+        }
+      }
+
+      // Load available tickers
+      async function loadTickers() {
+        try {
+          const response = await fetch(`${API_BASE}/api/tickers`);
+          const data = await response.json();
+          const select = document.getElementById("ticker-select");
+          select.innerHTML = '<option value="">Select a ticker...</option>';
+          data.tickers.forEach((ticker) => {
+            const option = document.createElement("option");
+            option.value = ticker;
+            option.textContent = ticker;
+            select.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Error loading tickers:", error);
+        }
+      }
+
+      // Switch tabs
+      function switchTab(tab) {
+        currentTab = tab;
+
+        // Update tab styling
+        ["regime", "strategy", "summary", "montecarlo", "analysis"].forEach(
+          (t) => {
+            const tabBtn = document.getElementById(`tab-${t}`);
+            if (t === tab) {
+              tabBtn.className =
+                "px-4 py-2 font-medium border-b-2 border-blue-500 text-blue-400";
+            } else {
+              tabBtn.className =
+                "px-4 py-2 font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-200";
+            }
+          },
+        );
+
+        // Load content
+        const ticker = document.getElementById("ticker-select").value;
+        if (ticker) {
+          loadTabContent(tab, ticker);
+        } else {
+          document.getElementById("content-area").innerHTML =
+            '<p class="text-gray-400">Please select a ticker first...</p>';
+        }
+      }
+
+      // Listen for ticker changes
+      document
+        .getElementById("ticker-select")
+        .addEventListener("change", (e) => {
+          if (e.target.value) {
+            loadTabContent(currentTab, e.target.value);
+          }
+        });
+
+      // Load tab content
+      async function loadTabContent(tab, ticker) {
+        const content = document.getElementById("content-area");
+        content.innerHTML =
+          '<div class="flex items-center justify-center h-64"><div class="text-blue-400 text-lg">Loading...</div></div>';
+
+        try {
+          switch (tab) {
+            case "regime":
+              await loadRegimePrediction(ticker);
+              break;
+            case "strategy":
+              await loadStrategy(ticker);
+              break;
+            case "summary":
+              await loadExecutiveSummary(ticker);
+              break;
+            case "montecarlo":
+              await loadMonteCarlo();
+              break;
+            case "analysis":
+              await loadFullAnalysis(ticker);
+              break;
+          }
+        } catch (error) {
+          content.innerHTML = `<div class="text-red-400">Error: ${error.message}</div>`;
+        }
+      }
+
+      // Load regime prediction
+      async function loadRegimePrediction(ticker) {
+        const response = await fetch(
+          `${API_BASE}/api/predict-regime/${ticker}`,
+        );
+        const data = await response.json();
+
+        const regimeColors = {
+          LOW_VOL: "bg-green-900 text-green-300",
+          NORMAL_VOL: "bg-yellow-900 text-yellow-300",
+          HIGH_VOL: "bg-red-900 text-red-300",
+        };
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Volatility Regime Prediction for ${ticker}</h2>
+                        <p class="text-gray-400 text-sm">Date: ${data.date}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Current Regime</div>
+                            <div class="px-3 py-2 rounded ${regimeColors[data.current_regime]} inline-block font-semibold">
+                                ${data.current_regime}
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Predicted Regime (21 days ahead)</div>
+                            <div class="px-3 py-2 rounded ${regimeColors[data.predicted_regime_21d]} inline-block font-semibold">
+                                ${data.predicted_regime_21d}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-3">Model Confidence</div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 bg-gray-600 rounded-full h-3">
+                                <div class="bg-blue-500 h-3 rounded-full" style="width: ${data.confidence * 100}%"></div>
+                            </div>
+                            <div class="text-xl font-bold">${(data.confidence * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-3">Class Probabilities</div>
+                        <div class="space-y-2">
+                            ${Object.entries(data.probabilities)
+                              .map(
+                                ([regime, prob]) => `
+                                <div class="flex justify-between items-center">
+                                    <span>${regime}</span>
+                                    <span class="font-mono">${(prob * 100).toFixed(2)}%</span>
+                                </div>
+                            `,
+                              )
+                              .join("")}
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-900 border border-blue-700 rounded-lg p-4">
+                        <div class="text-sm font-medium mb-2">💡 What this means:</div>
+                        <p class="text-sm text-blue-200">
+                            ${
+                              data.predicted_regime_21d === "HIGH_VOL"
+                                ? "The model predicts increased market volatility in the next month. Consider reducing risk exposure."
+                                : data.predicted_regime_21d === "LOW_VOL"
+                                  ? "The model predicts stable, low volatility conditions. Favorable for risk-on strategies."
+                                  : "The model predicts normal market conditions. Balanced approach recommended."
+                            }
+                        </p>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Load strategy recommendation
+      async function loadStrategy(ticker) {
+        const response = await fetch(
+          `${API_BASE}/api/strategy-recommendation/${ticker}`,
+        );
+        const data = await response.json();
+        const rec = data.recommendation;
+
+        const postureColors = {
+          RISK_ON: "text-green-400",
+          RISK_OFF: "text-red-400",
+          NEUTRAL: "text-yellow-400",
+          DEFENSIVE: "text-orange-400",
+        };
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Portfolio Strategy for ${ticker}</h2>
+                        <p class="text-gray-400 text-sm">Based on regime prediction and alpha signals</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Risk Posture</div>
+                            <div class="text-xl font-bold ${postureColors[rec.risk_posture] || "text-gray-300"}">
+                                ${rec.risk_posture}
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Primary Strategy</div>
+                            <div class="text-xl font-bold">${rec.primary_strategy}</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Confidence</div>
+                            <div class="text-xl font-bold">${rec.confidence}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-3">Recommended Equity Exposure</div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 bg-gray-600 rounded-full h-4">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-4 rounded-full" style="width: ${rec.equity_exposure * 100}%"></div>
+                            </div>
+                            <div class="text-2xl font-bold">${(rec.equity_exposure * 100).toFixed(0)}%</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Hedging</div>
+                            <div class="text-lg font-semibold ${rec.hedge_recommendation ? "text-yellow-400" : "text-gray-400"}">
+                                ${rec.hedge_recommendation ? "✅ ENABLED" : "❌ DISABLED"}
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Rebalancing</div>
+                            <div class="text-lg font-semibold">${rec.rebalancing_frequency}</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-2">Asset Preference</div>
+                        <div class="text-base">${rec.asset_preference}</div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-2">Position Sizing</div>
+                        <div class="text-base">${rec.position_sizing}</div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm font-medium text-gray-300 mb-3">📋 Rationale:</div>
+                        <ul class="space-y-2 text-sm">
+                            ${rec.rationale.map((r) => `<li class="flex gap-2"><span class="text-blue-400">•</span><span>${r}</span></li>`).join("")}
+                        </ul>
+                    </div>
+
+                    ${
+                      rec.warnings && rec.warnings.length > 0
+                        ? `
+                        <div class="bg-yellow-900 border border-yellow-700 rounded-lg p-4">
+                            <div class="text-sm font-medium text-yellow-300 mb-2">⚠️ Warnings:</div>
+                            <ul class="space-y-1 text-sm text-yellow-200">
+                                ${rec.warnings.map((w) => `<li>• ${w}</li>`).join("")}
+                            </ul>
+                        </div>
+                    `
+                        : ""
+                    }
+                </div>
+            `;
+      }
+
+      // Load executive summary
+      async function loadExecutiveSummary(ticker) {
+        const useLLM = confirm(
+          "Use real LLM (Gemini)? Click OK for Yes, Cancel for template response.",
+        );
+
+        const response = await fetch(
+          `${API_BASE}/api/executive-summary/${ticker}?use_llm=${useLLM}`,
+        );
+        const data = await response.json();
+        const summary = data.summary;
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Executive Summary for ${ticker}</h2>
+                        <p class="text-gray-400 text-sm">Plain-English market outlook for decision makers</p>
+                        <p class="text-gray-500 text-xs mt-1">Generated: ${data.timestamp}</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-6 border border-blue-700">
+                        <div class="text-lg leading-relaxed">
+                            ${summary.full_summary}
+                        </div>
+                    </div>
+
+                    <div class="grid gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm font-medium text-blue-400 mb-2">📊 Outlook</div>
+                            <p class="text-sm">${summary.outlook}</p>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm font-medium text-purple-400 mb-2">🔍 Reasoning</div>
+                            <p class="text-sm">${summary.reasoning}</p>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm font-medium text-green-400 mb-2">💡 Recommendation</div>
+                            <p class="text-sm">${summary.recommendation}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm font-medium text-gray-300 mb-3">Model Outputs Used:</div>
+                        <div class="text-xs font-mono bg-gray-800 p-3 rounded overflow-auto max-h-64">
+                            ${JSON.stringify(data.model_outputs, null, 2)}
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Load Monte Carlo
+      async function loadMonteCarlo() {
+        const response = await fetch(`${API_BASE}/api/monte-carlo`);
+        const data = await response.json();
+
+        const riskResponse = await fetch(`${API_BASE}/api/risk-metrics`);
+        const risk = await riskResponse.json();
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Monte Carlo Simulation Results</h2>
+                        <p class="text-gray-400 text-sm">1,000 simulated paths over 1 year</p>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-1">Sharpe Ratio</div>
+                            <div class="text-2xl font-bold">${risk.sharpe_ratio}</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-1">Max Drawdown</div>
+                            <div class="text-2xl font-bold text-red-400">${risk.max_drawdown}%</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-1">VaR (95%)</div>
+                            <div class="text-2xl font-bold text-orange-400">${risk.var_95}%</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-xs text-gray-400 mb-1">CVaR (95%)</div>
+                            <div class="text-2xl font-bold text-red-400">${risk.cvar_95}%</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="text-sm text-gray-400 mb-3">Sample Paths (First 10 of 1,000)</div>
+                        <div class="text-xs text-gray-500">
+                            Note: Full visualization would show probability cone with percentiles
+                        </div>
+                        <div class="mt-3 text-sm">
+                            <div class="font-mono text-xs">
+                                Median final value: $${data.percentiles.p50[252].toFixed(2)}
+                            </div>
+                            <div class="font-mono text-xs">
+                                5th percentile: $${data.percentiles.p5[252].toFixed(2)}
+                            </div>
+                            <div class="font-mono text-xs">
+                                95th percentile: $${data.percentiles.p95[252].toFixed(2)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Expected Return</div>
+                            <div class="text-xl font-bold">${risk.expected_return}%</div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="text-sm text-gray-400 mb-2">Probability of Loss</div>
+                            <div class="text-xl font-bold">${risk.prob_loss}%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Load full analysis
+      async function loadFullAnalysis(ticker) {
+        const response = await fetch(
+          `${API_BASE}/api/portfolio-analysis/${ticker}`,
+        );
+        const data = await response.json();
+
+        document.getElementById("content-area").innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2">Comprehensive Portfolio Analysis for ${ticker}</h2>
+                        <p class="text-gray-400 text-sm">Complete view: prediction + strategy + summary + risk</p>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h3 class="font-semibold mb-2">🎯 Regime Prediction</h3>
+                        <div class="text-sm">
+                            Current: <span class="font-mono">${data.regime_prediction.current_regime}</span> → 
+                            Predicted (21d): <span class="font-mono font-bold">${data.regime_prediction.predicted_regime_21d}</span>
+                            (${(data.regime_prediction.confidence * 100).toFixed(1)}% confidence)
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h3 class="font-semibold mb-2">📈 Strategy Recommendation</h3>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div>
+                                <span class="text-gray-400">Risk Posture:</span>
+                                <span class="font-semibold ml-2">${data.strategy_recommendation.recommendation.risk_posture}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Equity:</span>
+                                <span class="font-semibold ml-2">${(data.strategy_recommendation.recommendation.equity_exposure * 100).toFixed(0)}%</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400">Strategy:</span>
+                                <span class="font-semibold ml-2">${data.strategy_recommendation.recommendation.primary_strategy}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-900 to-purple-900 rounded-lg p-4 border border-blue-700">
+                        <h3 class="font-semibold mb-2">💬 Executive Summary</h3>
+                        <p class="text-sm leading-relaxed">${data.executive_summary.summary.full_summary}</p>
+                    </div>
+
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <h3 class="font-semibold mb-3">📊 Risk Metrics</h3>
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Sharpe Ratio:</span>
+                                <span class="font-mono">${data.risk_metrics.sharpe_ratio}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Max Drawdown:</span>
+                                <span class="font-mono text-red-400">${data.risk_metrics.max_drawdown}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">VaR (95%):</span>
+                                <span class="font-mono">${data.risk_metrics.var_95}%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Calmar Ratio:</span>
+                                <span class="font-mono">${data.risk_metrics.calmar_ratio}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-900 border border-blue-700 rounded-lg p-4">
+                        <div class="text-sm font-medium mb-2">✅ Full API Response Available</div>
+                        <button onclick="alert(JSON.stringify(${JSON.stringify(data)}, null, 2))" 
+                                class="px-3 py-1 bg-blue-700 hover:bg-blue-600 rounded text-sm">
+                            View Raw JSON
+                        </button>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Initialize on load
+      checkAPIStatus();
+    </script>
+  </body>
+</html>

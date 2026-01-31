@@ -1,0 +1,612 @@
+[
+  {
+    "sample_idx": 0,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.3835769891738892,
+    "top_positive_features": [
+      {
+        "feature": "vol_trend",
+        "value": -0.43462952596587734,
+        "shap": 0.07944979518651962
+      },
+      {
+        "feature": "price_zscore_200d",
+        "value": 2.1394690817314754,
+        "shap": 0.05607682466506958
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.03890309241627149,
+        "shap": 0.03843443840742111
+      },
+      {
+        "feature": "vol_60d",
+        "value": 0.017666556680324727,
+        "shap": 0.013208044692873955
+      },
+      {
+        "feature": "atr_pct",
+        "value": 0.01866776943306838,
+        "shap": 0.008775005117058754
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "z_vol",
+        "value": -1.4172690463534106,
+        "shap": -0.09467003494501114
+      },
+      {
+        "feature": "volume_std",
+        "value": 4764071.7776421355,
+        "shap": -0.007234562654048204
+      },
+      {
+        "feature": "bb_upper",
+        "value": 177.50131145562943,
+        "shap": -0.006627514958381653
+      },
+      {
+        "feature": "bb_middle",
+        "value": 174.1145149230957,
+        "shap": -0.005294030997902155
+      },
+      {
+        "feature": "macd",
+        "value": 2.3989364138095084,
+        "shap": -0.0031641367822885513
+      }
+    ]
+  },
+  {
+    "sample_idx": 1,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.3318299055099487,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 1.8024030126366664,
+        "shap": 0.04197333753108978
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.07509805765035502,
+        "shap": 0.04040934145450592
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.26167756227032934,
+        "shap": 0.033320486545562744
+      },
+      {
+        "feature": "volume_std",
+        "value": 11653234.15238971,
+        "shap": 0.012066833674907684
+      },
+      {
+        "feature": "vol_60d",
+        "value": 0.018607063723936827,
+        "shap": 0.010464181192219257
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "mom_6m",
+        "value": 0.8258339812054358,
+        "shap": -0.030809080228209496
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.088407763334144,
+        "shap": -0.016484059393405914
+      },
+      {
+        "feature": "mom_3m",
+        "value": 0.31099699986313034,
+        "shap": -0.013403578661382198
+      },
+      {
+        "feature": "mom_12_1",
+        "value": 0.6805746337453478,
+        "shap": -0.010089483112096786
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.6805746337453478,
+        "shap": -0.009037405252456665
+      }
+    ]
+  },
+  {
+    "sample_idx": 2,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.0661680698394775,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": -0.06613318654025403,
+        "shap": 0.025678295642137527
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.0649997526740384,
+        "shap": 0.016079261898994446
+      },
+      {
+        "feature": "mom_6m",
+        "value": 0.016272970517009266,
+        "shap": 0.013609262183308601
+      },
+      {
+        "feature": "mom_1m",
+        "value": -0.04464918497519488,
+        "shap": 0.00855176243931055
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.0740547776752869,
+        "shap": 0.006931505631655455
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "z_vol",
+        "value": -1.5591907866412869,
+        "shap": -0.18565769493579865
+      },
+      {
+        "feature": "vol_60d",
+        "value": 0.006989984874091783,
+        "shap": -0.04532046243548393
+      },
+      {
+        "feature": "mom_3m",
+        "value": -0.051395741990461374,
+        "shap": -0.023343728855252266
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.1593818060750346,
+        "shap": -0.014491874724626541
+      },
+      {
+        "feature": "volume_std",
+        "value": 5149032.554413527,
+        "shap": -0.010065666399896145
+      }
+    ]
+  },
+  {
+    "sample_idx": 3,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.1441794633865356,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 2.1990542530096797,
+        "shap": 0.04470193013548851
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.22807429135909008,
+        "shap": 0.006353647448122501
+      },
+      {
+        "feature": "rsi_mean_rev_z",
+        "value": -0.0900853059728683,
+        "shap": 0.002347150119021535
+      },
+      {
+        "feature": "mom_12_1",
+        "value": 0.22807429135909008,
+        "shap": 0.0022965807002037764
+      },
+      {
+        "feature": "macd_signal",
+        "value": 0.9774586117345854,
+        "shap": 0.0019572381861507893
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "volume_std",
+        "value": 8531.610556136444,
+        "shap": -0.03504990413784981
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.14141286068200104,
+        "shap": -0.034690987318754196
+      },
+      {
+        "feature": "bb_middle",
+        "value": 40.645199584960935,
+        "shap": -0.025929948315024376
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.048528702335528084,
+        "shap": -0.022016454488039017
+      },
+      {
+        "feature": "bb_upper",
+        "value": 43.51907655811104,
+        "shap": -0.014105004258453846
+      }
+    ]
+  },
+  {
+    "sample_idx": 4,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.3469799757003784,
+    "top_positive_features": [
+      {
+        "feature": "atr_pct",
+        "value": 0.007956964882435923,
+        "shap": 0.05119699984788895
+      },
+      {
+        "feature": "price_zscore_200d",
+        "value": 2.0401077780015133,
+        "shap": 0.03197513148188591
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.043821350775972163,
+        "shap": 0.03126724436879158
+      },
+      {
+        "feature": "volume_std",
+        "value": 332096771.8706184,
+        "shap": 0.01662919484078884
+      },
+      {
+        "feature": "mom_3m",
+        "value": 0.085298411885246,
+        "shap": 0.010912364348769188
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "vol_60d",
+        "value": 0.005796943914277218,
+        "shap": -0.04274081066250801
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.0568287988569478,
+        "shap": -0.02492288500070572
+      },
+      {
+        "feature": "macd_hist",
+        "value": -36.11550501333268,
+        "shap": -0.020477738231420517
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.08672769328793939,
+        "shap": -0.015739332884550095
+      },
+      {
+        "feature": "volume_z",
+        "value": 3.485427240018313,
+        "shap": -0.006415842100977898
+      }
+    ]
+  },
+  {
+    "sample_idx": 5,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.4461815357208252,
+    "top_positive_features": [
+      {
+        "feature": "vol_trend",
+        "value": -0.3648695396090941,
+        "shap": 0.08929943293333054
+      },
+      {
+        "feature": "price_zscore_200d",
+        "value": 1.7339073773838314,
+        "shap": 0.0428566038608551
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.02860647428293641,
+        "shap": 0.03730694577097893
+      },
+      {
+        "feature": "mom_6m",
+        "value": 0.07695199667684194,
+        "shap": 0.011654260568320751
+      },
+      {
+        "feature": "vol_60d",
+        "value": 0.013715048097604243,
+        "shap": 0.008645724505186081
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "volume_std",
+        "value": 3662539.693390095,
+        "shap": -0.010122890584170818
+      },
+      {
+        "feature": "vol_20d",
+        "value": 0.0087108448125148,
+        "shap": -0.007235599681735039
+      },
+      {
+        "feature": "mom_3m",
+        "value": 0.17482851459366788,
+        "shap": -0.006919559556990862
+      },
+      {
+        "feature": "macd",
+        "value": 6.9744720037588195,
+        "shap": -0.006164743565022945
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.0226920437522717,
+        "shap": -0.005864026956260204
+      }
+    ]
+  },
+  {
+    "sample_idx": 6,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.1560744047164917,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 1.8185759175937448,
+        "shap": 0.031935274600982666
+      },
+      {
+        "feature": "mom_6m",
+        "value": 0.059854905837766204,
+        "shap": 0.012299822643399239
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.2851484953143355,
+        "shap": 0.006518740206956863
+      },
+      {
+        "feature": "rsi_mean_rev_z",
+        "value": 0.5280426919318036,
+        "shap": 0.002347150119021535
+      },
+      {
+        "feature": "mom_12_1",
+        "value": 0.2851484953143355,
+        "shap": 0.002335374476388097
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "volume_std",
+        "value": 2205.3867568678907,
+        "shap": -0.03428444266319275
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.11296338733099495,
+        "shap": -0.033049575984478
+      },
+      {
+        "feature": "bb_middle",
+        "value": 33.175900268554685,
+        "shap": -0.02332678996026516
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.030775860064643057,
+        "shap": -0.01870420202612877
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.0756450946168294,
+        "shap": -0.015503806993365288
+      }
+    ]
+  },
+  {
+    "sample_idx": 7,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.2137271165847778,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 1.1830791726129148,
+        "shap": 0.024196555837988853
+      },
+      {
+        "feature": "mom_6m",
+        "value": 0.09496902798273998,
+        "shap": 0.011489419266581535
+      },
+      {
+        "feature": "mom_3m",
+        "value": 0.021797368420892527,
+        "shap": 0.010501738637685776
+      },
+      {
+        "feature": "volume_std",
+        "value": 236748006.01643538,
+        "shap": 0.010419956408441067
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.07281276411658744,
+        "shap": 0.00756865693256259
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "vol_60d",
+        "value": 0.005095107338459891,
+        "shap": -0.06159545108675957
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.0724465128453162,
+        "shap": -0.039796505123376846
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.009341208529572875,
+        "shap": -0.017590351402759552
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.01720022494380428,
+        "shap": -0.010749203152954578
+      },
+      {
+        "feature": "macd",
+        "value": -7.629860871212259,
+        "shap": -0.005427101161330938
+      }
+    ]
+  },
+  {
+    "sample_idx": 8,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.1438157558441162,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 1.7655456647360528,
+        "shap": 0.04510221257805824
+      },
+      {
+        "feature": "mom_3m",
+        "value": 0.092074274813007,
+        "shap": 0.01314418576657772
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.3758292516778583,
+        "shap": 0.0064932433888316154
+      },
+      {
+        "feature": "rsi_mean_rev_z",
+        "value": 0.48398999466429476,
+        "shap": 0.002347150119021535
+      },
+      {
+        "feature": "mom_12_1",
+        "value": 0.3758292516778583,
+        "shap": 0.002172194654121995
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "volume_std",
+        "value": 219.28354631408683,
+        "shap": -0.03557300195097923
+      },
+      {
+        "feature": "z_vol",
+        "value": -1.2559756590900601,
+        "shap": -0.035152919590473175
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.10999453718817886,
+        "shap": -0.028885018080472946
+      },
+      {
+        "feature": "bb_middle",
+        "value": 32.00164976119995,
+        "shap": -0.028761466965079308
+      },
+      {
+        "feature": "bb_lower",
+        "value": 30.241646433829256,
+        "shap": -0.017116889357566833
+      }
+    ]
+  },
+  {
+    "sample_idx": 9,
+    "predicted_regime": "NORMAL_VOL",
+    "true_regime": "LOW_VOL",
+    "base_value": 1.2758550643920898,
+    "prediction_value": 1.1990402936935425,
+    "top_positive_features": [
+      {
+        "feature": "price_zscore_200d",
+        "value": 0.7820605705983099,
+        "shap": 0.030052758753299713
+      },
+      {
+        "feature": "mom_6m",
+        "value": 0.03154332553699324,
+        "shap": 0.012504417449235916
+      },
+      {
+        "feature": "mom_3m",
+        "value": -0.013960999685907138,
+        "shap": 0.008859911933541298
+      },
+      {
+        "feature": "volume_std",
+        "value": 1151239986.884165,
+        "shap": 0.008825651369988918
+      },
+      {
+        "feature": "mom_12m",
+        "value": 0.06927848506958179,
+        "shap": 0.007243768312036991
+      }
+    ],
+    "top_negative_features": [
+      {
+        "feature": "z_vol",
+        "value": -1.399708020815063,
+        "shap": -0.06557349860668182
+      },
+      {
+        "feature": "vol_60d",
+        "value": 0.009155176781602853,
+        "shap": -0.02999461069703102
+      },
+      {
+        "feature": "vol_trend",
+        "value": -0.15757432013804729,
+        "shap": -0.018558815121650696
+      },
+      {
+        "feature": "bb_width",
+        "value": 0.024368297764657414,
+        "shap": -0.01391780935227871
+      },
+      {
+        "feature": "vol_20d",
+        "value": 0.007712556024498147,
+        "shap": -0.009780831634998322
+      }
+    ]
+  }
+]

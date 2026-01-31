@@ -1,0 +1,126 @@
+{
+  "timestamp": "2025-01-23",
+  "version": "1.0.0",
+  "scenarios": [
+    {
+      "scenario": "Bull Market (Low Vol, Strong Momentum)",
+      "recommendation": {
+        "regime": "LOW_VOL",
+        "risk_posture": "RISK_ON",
+        "primary_strategy": "MOMENTUM",
+        "equity_exposure": 0.85,
+        "hedge_recommendation": false,
+        "asset_preference": "Growth, High-Beta, Small-Cap",
+        "position_sizing": "STANDARD (2-3% per position)",
+        "rebalancing_frequency": "MONTHLY",
+        "confidence": "HIGH",
+        "rationale": [
+          "Low volatility regime predicted with 85% confidence. Favorable environment for equity exposure.",
+          "Strong momentum signal (2.10) in low volatility. Trend-following strategies favored.",
+          "Low volatility favors risk assets: growth stocks, small-caps, and cyclicals.",
+          "High confidence low-vol environment allows standard position sizing.",
+          "Low volatility allows longer rebalancing intervals to minimize transaction costs."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "scenario": "Market Crash (High Vol, Negative Skew, Fat Tails)",
+      "recommendation": {
+        "regime": "HIGH_VOL",
+        "risk_posture": "RISK_OFF",
+        "primary_strategy": "MEAN_REVERSION",
+        "equity_exposure": 0.35,
+        "hedge_recommendation": true,
+        "asset_preference": "Defensive, Low-Beta, Quality, Gold, Treasuries",
+        "position_sizing": "REDUCED (0.5-1% per position)",
+        "rebalancing_frequency": "WEEKLY",
+        "confidence": "HIGH",
+        "rationale": [
+          "High volatility regime predicted with 90% confidence. Reducing equity exposure significantly to preserve capital.",
+          "CVaR(95%) of -18.00% exceeds risk tolerance. Tail risk elevated.",
+          "Excess kurtosis of 6.00 indicates fat tails. Extreme moves more likely.",
+          "Negative skewness of -1.20 indicates asymmetric downside risk.",
+          "HEDGING ENABLED: 3 tail risk indicators triggered. Consider put options, VIX futures, or inverse ETFs.",
+          "Strong mean reversion signal (2.50) in high volatility. Oversold conditions create opportunities.",
+          "High volatility demands defensive positioning: utilities, staples, quality dividends.",
+          "Adding safe-haven assets: gold and long-duration Treasuries for portfolio ballast.",
+          "Tail risk elevated. Reducing position sizes to limit drawdown potential.",
+          "High volatility regime requires frequent rebalancing to manage risk drift."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "scenario": "Choppy Market (Normal Vol, Mixed Signals)",
+      "recommendation": {
+        "regime": "NORMAL_VOL",
+        "risk_posture": "NEUTRAL",
+        "primary_strategy": "BALANCED",
+        "equity_exposure": 0.6,
+        "hedge_recommendation": false,
+        "asset_preference": "Balanced Mix, Quality Focus",
+        "position_sizing": "MODERATE (1-2% per position)",
+        "rebalancing_frequency": "BI-WEEKLY",
+        "confidence": "MEDIUM",
+        "rationale": [
+          "Normal volatility regime. Maintaining balanced exposure with room for tactical adjustments.",
+          "Balanced signal strength. Diversifying across strategies.",
+          "Normal regime supports balanced portfolio with emphasis on quality factors.",
+          "Moderate risk environment. Using moderate position sizing."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "scenario": "Mean Reversion Setup (High Vol, Oversold)",
+      "recommendation": {
+        "regime": "HIGH_VOL",
+        "risk_posture": "RISK_OFF",
+        "primary_strategy": "MEAN_REVERSION",
+        "equity_exposure": 0.35,
+        "hedge_recommendation": true,
+        "asset_preference": "Defensive, Low-Beta, Quality, Gold, Treasuries",
+        "position_sizing": "REDUCED (0.5-1% per position)",
+        "rebalancing_frequency": "WEEKLY",
+        "confidence": "HIGH",
+        "rationale": [
+          "High volatility regime predicted with 75% confidence. Reducing equity exposure significantly to preserve capital.",
+          "CVaR(95%) of -12.00% exceeds risk tolerance. Tail risk elevated.",
+          "Excess kurtosis of 3.50 indicates fat tails. Extreme moves more likely.",
+          "Negative skewness of -0.60 indicates asymmetric downside risk.",
+          "HEDGING ENABLED: 3 tail risk indicators triggered. Consider put options, VIX futures, or inverse ETFs.",
+          "Strong mean reversion signal (1.80) in high volatility. Oversold conditions create opportunities.",
+          "High volatility demands defensive positioning: utilities, staples, quality dividends.",
+          "Adding safe-haven assets: gold and long-duration Treasuries for portfolio ballast.",
+          "Tail risk elevated. Reducing position sizes to limit drawdown potential.",
+          "High volatility regime requires frequent rebalancing to manage risk drift."
+        ],
+        "warnings": []
+      }
+    },
+    {
+      "scenario": "Low Confidence Environment",
+      "recommendation": {
+        "regime": "NORMAL_VOL",
+        "risk_posture": "NEUTRAL",
+        "primary_strategy": "BALANCED",
+        "equity_exposure": 0.6,
+        "hedge_recommendation": false,
+        "asset_preference": "Balanced Mix, Quality Focus",
+        "position_sizing": "MODERATE (1-2% per position)",
+        "rebalancing_frequency": "BI-WEEKLY",
+        "confidence": "LOW",
+        "rationale": [
+          "Normal volatility regime. Maintaining balanced exposure with room for tactical adjustments.",
+          "Balanced signal strength. Diversifying across strategies.",
+          "Normal regime supports balanced portfolio with emphasis on quality factors.",
+          "Moderate risk environment. Using moderate position sizing."
+        ],
+        "warnings": [
+          "Low confidence in recommendations. Consider waiting for clearer signals."
+        ]
+      }
+    }
+  ]
+}
