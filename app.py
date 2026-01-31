@@ -1286,22 +1286,25 @@
 
 
 # streamlit_app.py - Render-compatible version with environment variables
+
+"""
+Streamlit Dashboard for Quantitative Research Platform
+Production-ready version with proper error handling
+"""
+
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
 import requests
-import json
-from typing import Dict, List, Optional
-import time
-from dataclasses import dataclass
-import warnings
 import os
-warnings.filterwarnings('ignore')
+from datetime import datetime
 
-# Page Configuration
+# =============================================================================
+# CONFIGURATION
+# =============================================================================
+
 st.set_page_config(
     page_title="Quantitative Research Platform",
     page_icon="📈",
@@ -1309,65 +1312,20 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for Dark Blue/Orange Theme
+# API Configuration
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
+
+# Custom CSS
 st.markdown("""
 <style>
-    /* Main Theme */
-    .main {
-        background-color: #0A192F;
-    }
-    
-    /* Sidebar */
-    .css-1d391kg, .css-1lcbmhc {
-        background-color: #112240 !important;
-    }
-    
-    /* Headers */
-    h1, h2, h3 {
-        color: #E6F1FF !important;
-        font-family: 'Inter', sans-serif;
-    }
-    
-    /* Cards */
-    .stMetric, .stMetric label {
+    .main { background-color: #0A192F; }
+    h1, h2, h3 { color: #E6F1FF !important; }
+    .stMetric { 
         background-color: #112240;
         border-radius: 10px;
         padding: 15px;
         border-left: 4px solid #FF6B35;
     }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
-        background-color: #112240;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: #0A192F;
-        color: #8892B0;
-        border-radius: 5px 5px 0 0;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: #112240 !important;
-        color: #FF6B35 !important;
-        border-bottom: 2px solid #FF6B35;
-    }
-    
-    /* Dataframes */
-    .dataframe {
-        background-color: #112240 !important;
-        color: #E6F1FF !important;
-    }
-    
-    /* Inputs */
-    .stTextInput>div>div>input, .stSelectbox>div>div>div {
-        background-color: #112240;
-        color: #E6F1FF;
-        border: 1px solid #233554;
-    }
-    
-    /* Buttons */
     .stButton>button {
         background-color: #FF6B35;
         color: white;
@@ -1376,110 +1334,30 @@ st.markdown("""
         padding: 0.5rem 1rem;
         font-weight: 600;
     }
-    
-    .stButton>button:hover {
-        background-color: #FF8E53;
-    }
-    
-    /* Color Classes */
-    .high-vol {
-        background-color: rgba(255, 107, 53, 0.2);
-        border-left: 4px solid #FF6B35;
-    }
-    
-    .normal-vol {
-        background-color: rgba(255, 158, 83, 0.2);
-        border-left: 4px solid #FF8E53;
-    }
-    
-    .low-vol {
-        background-color: rgba(100, 255, 218, 0.2);
-        border-left: 4px solid #64FFDA;
-    }
-    
-    /* Metric Cards */
-    .metric-card {
-        background-color: #112240;
-        border-radius: 10px;
-        padding: 20px;
-        border: 1px solid rgba(255, 107, 53, 0.1);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Regime Indicators */
-    .regime-indicator {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-weight: bold;
-        margin: 5px;
-    }
-    
-    .regime-high {
-        background-color: #FF6B35;
-        color: white;
-    }
-    
-    .regime-normal {
-        background-color: #FF8E53;
-        color: white;
-    }
-    
-    .regime-low {
-        background-color: #64FFDA;
-        color: #0A192F;
-    }
-    
-    /* API Status */
-    .api-online {
-        background-color: rgba(100, 255, 218, 0.2);
-        border-left: 4px solid #64FFDA;
-    }
-    
-    .api-offline {
-        background-color: rgba(255, 107, 53, 0.2);
-        border-left: 4px solid #FF6B35;
-    }
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================================
-# API CONFIGURATION - Environment Variable Support
-# ============================================================================
+# =============================================================================
+# API FUNCTIONS
+# =============================================================================
 
-# Get API URL from environment variable (for Render deployment)
-# Falls back to localhost for local development
-API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000")
-
-# Display current API URL in debug mode
-if os.getenv("DEBUG", "false").lower() == "true":
-    st.sidebar.info(f"API URL: {API_BASE_URL}")
-
-# ============================================================================
-# DATA FETCHING FUNCTIONS
-# ============================================================================
-
-def fetch_from_api(endpoint, params=None, timeout=30):
-    """Fetch data from FastAPI backend with error handling"""
+@st.cache_data(ttl=300)
+def fetch_api(endpoint, params=None):
+    """Fetch data from API with caching"""
     try:
         url = f"{API_BASE_URL}{endpoint}"
-        response = requests.get(url, params=params, timeout=timeout)
+        response = requests.get(url, params=params, timeout=30)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.ConnectionError:
-        st.error(f"❌ Cannot connect to backend at {API_BASE_URL}")
-        st.info("💡 If running locally: `uvicorn main:app --reload`")
-        st.info("💡 If deployed: Check your API_BASE_URL environment variable")
+        st.error(f"❌ Cannot connect to API at {API_BASE_URL}")
+        st.info("💡 The backend may be waking up (cold start ~50s). Please wait and refresh.")
         return None
     except requests.exceptions.Timeout:
-        st.warning(f"⏱️ Request timed out after {timeout}s. The backend may be waking up (cold start).")
-        st.info("Please try again in a few seconds...")
-        return None
-    except requests.exceptions.RequestException as e:
-        st.error(f"❌ API Error: {str(e)}")
+        st.warning("⏱️ Request timed out. The backend may be starting up. Please try again.")
         return None
     except Exception as e:
-        st.error(f"❌ Unexpected error: {str(e)}")
+        st.error(f"❌ Error: {str(e)}")
         return None
 
 def check_api_health():
@@ -1488,78 +1366,98 @@ def check_api_health():
         response = requests.get(f"{API_BASE_URL}/health", timeout=10)
         return response.status_code == 200
     except:
-        # Try alternative health check endpoint
         try:
             response = requests.get(f"{API_BASE_URL}/", timeout=10)
             return response.status_code == 200
         except:
             return False
 
-# Main data fetching functions
-def get_ticker_list():
-    """Get list of available tickers from API"""
-    data = fetch_from_api("/api/tickers")
+@st.cache_data(ttl=600)
+def get_tickers():
+    """Get available tickers"""
+    data = fetch_api("/api/tickers")
     if data and "tickers" in data:
         return sorted(data["tickers"])
-    # Fallback tickers if API unavailable
-    return ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA", "SPY", "QQQ", "VTI"]
+    return ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA", "SPY", "QQQ"]
 
 def get_market_data(ticker, limit=100):
-    """Get market data for a ticker"""
-    params = {"limit": limit}
-    data = fetch_from_api(f"/api/market-data/{ticker}", params=params)
+    """Get market data"""
+    data = fetch_api(f"/api/market-data/{ticker}", params={"limit": limit})
     if data and "data" in data:
         return pd.DataFrame(data["data"])
     return None
 
-def get_regime_prediction(ticker):
-    """Get regime prediction for a ticker"""
-    data = fetch_from_api(f"/api/predict-regime/{ticker}")
-    return data
+def get_prediction(ticker):
+    """Get regime prediction"""
+    return fetch_api(f"/api/predict-regime/{ticker}")
 
-def get_alpha_signals(ticker, limit=50):
-    """Get alpha signals for a ticker"""
-    params = {"limit": limit}
-    data = fetch_from_api(f"/api/alpha-signals/{ticker}", params=params)
-    if data and "signals" in data:
-        return pd.DataFrame(data["signals"])
-    return None
-
-def get_strategy_recommendation(ticker):
-    """Get strategy recommendation for a ticker"""
-    data = fetch_from_api(f"/api/strategy-recommendation/{ticker}")
-    return data
-
-def get_executive_summary(ticker):
-    """Get executive summary for a ticker"""
-    params = {"use_llm": False}
-    data = fetch_from_api(f"/api/executive-summary/{ticker}", params=params)
-    return data
-
-def get_monte_carlo_results():
-    """Get Monte Carlo simulation results"""
-    data = fetch_from_api("/api/monte-carlo")
-    return data
+def get_strategy(ticker):
+    """Get strategy recommendation"""
+    return fetch_api(f"/api/strategy-recommendation/{ticker}")
 
 def get_risk_metrics():
     """Get risk metrics"""
-    data = fetch_from_api("/api/risk-metrics")
-    return data
+    return fetch_api("/api/risk-metrics")
 
-def get_top_momentum(asset_class=None, top_n=10):
-    """Get top momentum stocks"""
-    params = {"top_n": top_n}
-    if asset_class:
-        params["asset_class"] = asset_class
-    data = fetch_from_api("/api/top-momentum", params=params)
-    return data
+# =============================================================================
+# VISUALIZATION FUNCTIONS
+# =============================================================================
 
-def get_portfolio_analysis(ticker):
-    """Get comprehensive portfolio analysis"""
-    data = fetch_from_api(f"/api/portfolio-analysis/{ticker}")
-    return data
+def create_price_chart(df):
+    """Create price chart"""
+    if df is None or df.empty:
+        return None
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df['Date'],
+        y=df['Close'],
+        mode='lines',
+        name='Price',
+        line=dict(color='#E6F1FF', width=2)
+    ))
+    
+    fig.update_layout(
+        title=f"{df['Ticker'].iloc[0]} Price Chart",
+        xaxis_title="Date",
+        yaxis_title="Price ($)",
+        template="plotly_dark",
+        height=400
+    )
+    
+    return fig
 
-# Helper Functions
+def create_regime_chart(prediction):
+    """Create regime probability chart"""
+    if not prediction or 'probabilities' not in prediction:
+        return None
+    
+    probs = prediction['probabilities']
+    labels = ['Low Vol', 'Normal Vol', 'High Vol']
+    values = [
+        probs.get('LOW_VOL', 0) * 100,
+        probs.get('NORMAL_VOL', 0) * 100,
+        probs.get('HIGH_VOL', 0) * 100
+    ]
+    colors = ['#64FFDA', '#FF8E53', '#FF6B35']
+    
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=values,
+        hole=0.6,
+        marker=dict(colors=colors),
+        textinfo='percent+label'
+    )])
+    
+    fig.update_layout(
+        title="Regime Probabilities",
+        template="plotly_dark",
+        height=300,
+        showlegend=False
+    )
+    
+    return fig
+
 def get_regime_color(regime):
     """Get color for regime"""
     colors = {
@@ -1569,251 +1467,14 @@ def get_regime_color(regime):
     }
     return colors.get(regime, "#8892B0")
 
-def format_percentage(value):
-    """Format value as percentage"""
-    return f"{value*100:.1f}%"
+# =============================================================================
+# MAIN APP
+# =============================================================================
 
-def create_regime_chart(market_data):
-    """Create price chart with regime overlay"""
-    if market_data is None or len(market_data) == 0:
-        return None
-    
-    fig = go.Figure()
-    
-    # Add price line
-    fig.add_trace(go.Scatter(
-        x=market_data['Date'],
-        y=market_data['Close'],
-        mode='lines',
-        name='Price',
-        line=dict(color='#E6F1FF', width=2),
-        hovertemplate='%{x|%Y-%m-%d}<br>Price: $%{y:.2f}<extra></extra>'
-    ))
-    
-    # Add volume bars if available
-    if 'Volume' in market_data.columns:
-        fig.add_trace(go.Bar(
-            x=market_data['Date'],
-            y=market_data['Volume'],
-            name='Volume',
-            yaxis='y2',
-            marker=dict(color='rgba(100, 255, 218, 0.3)'),
-            opacity=0.3
-        ))
-    
-    fig.update_layout(
-        title=f"{market_data['Ticker'].iloc[0]} - Price Chart",
-        xaxis_title="Date",
-        yaxis_title="Price ($)",
-        template="plotly_dark",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#E6F1FF'),
-        height=400,
-        hovermode='x unified'
-    )
-    
-    if 'Volume' in market_data.columns:
-        fig.update_layout(
-            yaxis2=dict(
-                title="Volume",
-                overlaying='y',
-                side='right',
-                showgrid=False
-            )
-        )
-    
-    return fig
-
-def create_shap_waterfall(shap_data):
-    """Create SHAP waterfall chart"""
-    if not shap_data:
-        return None
-    
-    df = pd.DataFrame(shap_data)
-    df = df.sort_values('shap', ascending=True)
-    
-    fig = go.Figure(go.Waterfall(
-        orientation="h",
-        measure=["relative"] * len(df),
-        y=df['feature'],
-        x=df['shap'],
-        textposition="outside",
-        text=[f"+{x:.3f}" if x > 0 else f"{x:.3f}" for x in df['shap']],
-        connector=dict(line=dict(color="#8892B0", width=1)),
-        increasing=dict(marker=dict(color="#FF6B35")),
-        decreasing=dict(marker=dict(color="#64FFDA")),
-        totals=dict(marker=dict(color="#FF8E53"))
-    ))
-    
-    fig.update_layout(
-        title="SHAP Feature Contributions to Prediction",
-        xaxis_title="SHAP Value (Impact on Prediction)",
-        template="plotly_dark",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#E6F1FF'),
-        height=400,
-        showlegend=False
-    )
-    
-    return fig
-
-def create_regime_probability_chart(prediction):
-    """Create regime probability donut chart"""
-    if not prediction or 'probabilities' not in prediction:
-        return None
-    
-    labels = ['Low Vol', 'Normal Vol', 'High Vol']
-    values = [
-        prediction['probabilities'].get('LOW_VOL', 0),
-        prediction['probabilities'].get('NORMAL_VOL', 0),
-        prediction['probabilities'].get('HIGH_VOL', 0)
-    ]
-    colors = ['#64FFDA', '#FF8E53', '#FF6B35']
-    
-    fig = go.Figure(data=[go.Pie(
-        labels=labels,
-        values=values,
-        hole=0.6,
-        marker=dict(colors=colors),
-        textinfo='percent+label',
-        textfont=dict(color='#E6F1FF'),
-        hoverinfo='label+percent+value'
-    )])
-    
-    fig.update_layout(
-        title="Regime Probability Distribution",
-        template="plotly_dark",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#E6F1FF'),
-        height=300,
-        showlegend=False,
-        annotations=[dict(
-            text=f"Confidence<br>{prediction.get('confidence', 0)*100:.1f}%",
-            x=0.5, y=0.5,
-            font_size=20,
-            showarrow=False,
-            font_color='#E6F1FF'
-        )]
-    )
-    
-    return fig
-
-def create_monte_carlo_chart(monte_carlo_data):
-    """Create Monte Carlo probability cone chart"""
-    if not monte_carlo_data or 'percentiles' not in monte_carlo_data:
-        return None
-    
-    days = monte_carlo_data.get('days', list(range(253)))
-    percentiles = monte_carlo_data['percentiles']
-    
-    fig = go.Figure()
-    
-    # Add percentile bands with gradient fill
-    if 'p95' in percentiles and 'p5' in percentiles:
-        fig.add_trace(go.Scatter(
-            x=days + days[::-1],
-            y=percentiles['p95'] + percentiles['p5'][::-1],
-            fill='toself',
-            fillcolor='rgba(255, 107, 53, 0.1)',
-            line=dict(color='rgba(255, 107, 53, 0.5)'),
-            name='90% Confidence',
-            showlegend=True
-        ))
-    
-    if 'p75' in percentiles and 'p25' in percentiles:
-        fig.add_trace(go.Scatter(
-            x=days + days[::-1],
-            y=percentiles['p75'] + percentiles['p25'][::-1],
-            fill='toself',
-            fillcolor='rgba(255, 158, 83, 0.15)',
-            line=dict(color='rgba(255, 158, 83, 0.5)'),
-            name='50% Confidence',
-            showlegend=True
-        ))
-    
-    # Add median line
-    if 'p50' in percentiles:
-        fig.add_trace(go.Scatter(
-            x=days,
-            y=percentiles['p50'],
-            mode='lines',
-            name='Median Path',
-            line=dict(color='#FF8E53', width=3)
-        ))
-    
-    # Add sample paths if available
-    if 'sample_paths' in monte_carlo_data:
-        sample_paths = monte_carlo_data['sample_paths']
-        for i in range(min(10, len(sample_paths))):
-            fig.add_trace(go.Scatter(
-                x=days[:len(sample_paths[i])],
-                y=sample_paths[i],
-                mode='lines',
-                line=dict(color='rgba(255, 255, 255, 0.1)', width=1),
-                showlegend=False,
-                hoverinfo='skip'
-            ))
-    
-    fig.update_layout(
-        title="Monte Carlo Simulation - 252-Day Probability Cone",
-        xaxis_title="Days Ahead",
-        yaxis_title="Portfolio Value",
-        template="plotly_dark",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#E6F1FF'),
-        height=400,
-        hovermode='x unified'
-    )
-    
-    return fig
-
-def create_strategy_gauge(exposure):
-    """Create equity exposure gauge chart"""
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=exposure * 100,
-        title={'text': "Equity Exposure", 'font': {'color': '#E6F1FF'}},
-        domain={'x': [0, 1], 'y': [0, 1]},
-        gauge={
-            'axis': {'range': [0, 100], 'tickwidth': 1, 'tickcolor': '#E6F1FF'},
-            'bar': {'color': "#FF6B35"},
-            'bgcolor': "#112240",
-            'borderwidth': 2,
-            'bordercolor': "#233554",
-            'steps': [
-                {'range': [0, 30], 'color': 'rgba(255, 107, 53, 0.3)'},
-                {'range': [30, 70], 'color': 'rgba(255, 158, 83, 0.3)'},
-                {'range': [70, 100], 'color': 'rgba(100, 255, 218, 0.3)'}
-            ],
-            'threshold': {
-                'line': {'color': "#E6F1FF", 'width': 4},
-                'thickness': 0.75,
-                'value': exposure * 100
-            }
-        }
-    ))
-    
-    fig.update_layout(
-        template="plotly_dark",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#E6F1FF'),
-        height=250
-    )
-    
-    return fig
-
-# Main App
 def main():
     # Initialize session state
     if 'ticker' not in st.session_state:
-        st.session_state.ticker = "GOOGL"
-    if 'api_online' not in st.session_state:
-        st.session_state.api_online = check_api_health()
+        st.session_state.ticker = "AAPL"
     
     # Sidebar
     with st.sidebar:
@@ -1821,150 +1482,215 @@ def main():
         st.markdown("---")
         
         # API Status
-        api_status = check_api_health()
-        status_icon = "🟢" if api_status else "🔴"
-        status_color = "api-online" if api_status else "api-offline"
+        api_online = check_api_health()
+        status_icon = "🟢" if api_online else "🔴"
+        status_text = "Connected" if api_online else "Disconnected"
         
         st.markdown(f"""
-        <div class="metric-card {status_color}">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="font-size: 24px;">{status_icon}</div>
-                <div>
-                    <div style="color: #E6F1FF; font-weight: bold;">API Status</div>
-                    <div style="color: #8892B0;">{'Connected' if api_status else 'Disconnected'}</div>
-                </div>
-            </div>
+        <div style="padding: 15px; background-color: #112240; border-radius: 10px; 
+                    border-left: 4px solid {'#64FFDA' if api_online else '#FF6B35'};">
+            <div style="font-size: 24px; text-align: center;">{status_icon}</div>
+            <div style="color: #E6F1FF; font-weight: bold; text-align: center;">API Status</div>
+            <div style="color: #8892B0; text-align: center;">{status_text}</div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Mode Selection
-        mode = st.radio(
-            "Analysis Mode",
-            ["Single Ticker", "Batch Analysis", "Dashboard"],
-            index=0
-        )
-        
         st.markdown("---")
         
-        if mode == "Single Ticker":
-            # Get available tickers
-            available_tickers = get_ticker_list()
-            
-            ticker = st.selectbox(
-                "Select Ticker",
-                options=available_tickers,
-                index=available_tickers.index(st.session_state.ticker) if st.session_state.ticker in available_tickers else 0
-            )
-            
-            # Analysis options
-            analysis_type = st.selectbox(
-                "Analysis Type",
-                ["Comprehensive", "Regime Only", "Strategy Only", "Quick Scan"]
-            )
-            
-            if st.button("🔍 Analyze", use_container_width=True):
-                st.session_state.ticker = ticker
-                st.session_state.analysis_type = analysis_type
-                st.rerun()
+        # Ticker Selection
+        tickers = get_tickers()
+        selected_ticker = st.selectbox(
+            "Select Ticker",
+            options=tickers,
+            index=tickers.index(st.session_state.ticker) if st.session_state.ticker in tickers else 0
+        )
         
-        elif mode == "Batch Analysis":
-            st.markdown("### Batch Analysis")
-            st.info("Coming soon: Multi-ticker comparison")
-        
-        elif mode == "Dashboard":
-            st.markdown("### Dashboard")
-            st.info("Coming soon: Portfolio dashboard")
+        if st.button("🔍 Analyze", use_container_width=True):
+            st.session_state.ticker = selected_ticker
+            st.rerun()
         
         st.markdown("---")
         
         # Quick Actions
         st.markdown("### ⚡ Quick Actions")
+        if st.button("🔄 Refresh Data", use_container_width=True):
+            st.cache_data.clear()
+            st.rerun()
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🔄 Refresh", use_container_width=True):
-                st.rerun()
-        with col2:
-            if st.button("📊 All Tickers", use_container_width=True):
-                st.session_state.ticker = ""
-                st.rerun()
-        
-        # Performance Metrics
+        # System Info
         st.markdown("---")
-        st.markdown("### 📊 System Metrics")
-        
-        if api_status:
-            try:
-                # Try to get some metrics from API
-                tickers_data = fetch_from_api("/api/tickers", timeout=5)
-                if tickers_data:
-                    st.metric("Total Tickers", tickers_data.get("total", "N/A"))
-                
-                performance = fetch_from_api("/api/performance-summary", timeout=5)
-                if performance and "asset_class_performance" in performance:
-                    st.metric("Asset Classes", len(performance["asset_class_performance"]))
-            except:
-                st.metric("Model Accuracy", "81.7%")
-                st.metric("Sharpe Ratio", "1.07")
-        else:
-            st.metric("Model Accuracy", "81.7%")
-            st.metric("Sharpe Ratio", "1.07")
+        st.markdown("### 📊 System Info")
+        st.metric("Total Tickers", len(tickers))
+        st.metric("Model Accuracy", "81.7%")
     
     # Main Content
     st.title("Quantitative Research Platform")
+    st.markdown(f"### Analysis for {st.session_state.ticker}")
     st.markdown("---")
     
-    # Check API status
-    if not api_status:
-        st.warning("⚠️ Backend API is not connected. Using cached data where available.")
-        if os.getenv("API_BASE_URL"):
-            st.info(f"Attempting to connect to: {API_BASE_URL}")
-            st.info("The backend may be waking up (cold start on Render free tier takes ~50 seconds). Please wait and refresh.")
-        else:
-            st.info("To connect to a backend, set the API_BASE_URL environment variable.")
-        st.markdown("---")
-    
-    if mode == "Single Ticker":
-        render_single_ticker_analysis()
-    elif mode == "Batch Analysis":
-        render_batch_analysis()
-    elif mode == "Dashboard":
-        render_dashboard()
-
-# [Rest of the functions remain the same - render_single_ticker_analysis, render_batch_analysis, render_dashboard]
-# Copy from lines 400-1200 of original app.py
-# (Keeping the same to avoid repeating thousands of lines)
-
-def render_single_ticker_analysis():
-    """Render single ticker analysis page"""
-    ticker = st.session_state.get('ticker', 'GOOGL')
-    
-    st.markdown(f"## Analysis for {ticker}")
-    st.info("Single ticker analysis - Full implementation available in original file")
-    
-    # Show loading state
-    with st.spinner(f"Fetching data for {ticker}..."):
-        regime_pred = get_regime_prediction(ticker)
+    # Check API
+    if not api_online:
+        st.warning("⚠️ Backend API is disconnected")
+        st.info(f"Attempting to connect to: {API_BASE_URL}")
+        st.info("💡 If using Render free tier, the backend may be waking up (~50 seconds)")
         
-        if regime_pred:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.metric("Predicted Regime", regime_pred.get('predicted_regime_21d', 'N/A'))
-            with col2:
-                st.metric("Confidence", f"{regime_pred.get('confidence', 0)*100:.1f}%")
+        if st.button("🔄 Retry Connection"):
+            st.rerun()
+        
+        st.stop()
+    
+    # Fetch data
+    ticker = st.session_state.ticker
+    
+    with st.spinner(f"Loading data for {ticker}..."):
+        market_data = get_market_data(ticker, limit=100)
+        prediction = get_prediction(ticker)
+        strategy = get_strategy(ticker)
+        risk_metrics = get_risk_metrics()
+    
+    # Top Metrics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        if prediction:
+            regime = prediction.get('predicted_regime_21d', 'UNKNOWN')
+            regime_color = get_regime_color(regime)
+            st.markdown(f"""
+            <div style="padding: 20px; background-color: #112240; border-radius: 10px; 
+                        border-left: 4px solid {regime_color};">
+                <h4 style="color: #8892B0; margin: 0;">Predicted Regime</h4>
+                <h2 style="color: {regime_color}; margin: 10px 0;">{regime.replace('_', ' ')}</h2>
+                <p style="color: #8892B0; margin: 0;">21-day forecast</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    with col2:
+        if prediction:
+            confidence = prediction.get('confidence', 0) * 100
+            st.metric("Model Confidence", f"{confidence:.1f}%")
+    
+    with col3:
+        if strategy and 'recommendation' in strategy:
+            exposure = strategy['recommendation'].get('equity_exposure', 0.6) * 100
+            st.metric("Equity Exposure", f"{exposure:.0f}%")
+    
+    with col4:
+        if risk_metrics:
+            sharpe = risk_metrics.get('sharpe_ratio', 0)
+            st.metric("Sharpe Ratio", f"{sharpe:.2f}")
+    
+    st.markdown("---")
+    
+    # Tabs
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📈 Market Data", 
+        "🎯 Prediction", 
+        "💼 Strategy",
+        "📊 Risk Metrics"
+    ])
+    
+    with tab1:
+        st.markdown("### Price Chart")
+        if market_data is not None and not market_data.empty:
+            fig = create_price_chart(market_data)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+            
+            # Show data table
+            st.markdown("### Recent Data")
+            st.dataframe(
+                market_data[['Date', 'Close', 'Volume']].head(10),
+                use_container_width=True
+            )
         else:
-            st.error("Could not fetch prediction data")
+            st.info("No market data available")
+    
+    with tab2:
+        st.markdown("### Regime Prediction")
+        
+        if prediction:
+            col1, col2 = st.columns([1, 1])
+            
+            with col1:
+                # Show prediction details
+                current_regime = prediction.get('current_regime', 'UNKNOWN')
+                predicted_regime = prediction.get('predicted_regime_21d', 'UNKNOWN')
+                confidence = prediction.get('confidence', 0)
+                
+                st.markdown(f"""
+                **Current Regime:** {current_regime}  
+                **Predicted Regime (21d):** {predicted_regime}  
+                **Confidence:** {confidence*100:.1f}%
+                """)
+                
+                # Show probabilities
+                if 'probabilities' in prediction:
+                    st.markdown("#### Probabilities")
+                    probs = prediction['probabilities']
+                    for regime, prob in probs.items():
+                        st.progress(prob, text=f"{regime}: {prob*100:.1f}%")
+            
+            with col2:
+                fig = create_regime_chart(prediction)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No prediction data available")
+    
+    with tab3:
+        st.markdown("### Portfolio Strategy")
+        
+        if strategy and 'recommendation' in strategy:
+            rec = strategy['recommendation']
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.metric("Risk Posture", rec.get('risk_posture', 'N/A'))
+                st.metric("Primary Strategy", rec.get('primary_strategy', 'N/A'))
+            
+            with col2:
+                st.metric("Equity Exposure", f"{rec.get('equity_exposure', 0)*100:.0f}%")
+                st.metric("Rebalancing", rec.get('rebalancing_frequency', 'N/A'))
+            
+            # Rationale
+            st.markdown("### Strategy Rationale")
+            st.info(f"""
+            Based on the {rec.get('regime', 'NORMAL_VOL')} regime prediction, 
+            we recommend a {rec.get('risk_posture', 'NEUTRAL').lower()} stance with 
+            {rec.get('primary_strategy', 'BALANCED').replace('_', ' ').lower()} approach.
+            """)
+        else:
+            st.info("No strategy recommendation available")
+    
+    with tab4:
+        st.markdown("### Risk Metrics")
+        
+        if risk_metrics:
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                st.metric("Sharpe Ratio", f"{risk_metrics.get('sharpe_ratio', 0):.2f}")
+                st.metric("Calmar Ratio", f"{risk_metrics.get('calmar_ratio', 0):.2f}")
+            
+            with col2:
+                st.metric("Max Drawdown", f"{risk_metrics.get('max_drawdown', 0):.1f}%")
+                st.metric("VaR (95%)", f"{risk_metrics.get('var_95', 0):.1f}%")
+            
+            with col3:
+                st.metric("CVaR (95%)", f"{risk_metrics.get('cvar_95', 0):.1f}%")
+                st.metric("Prob Loss", f"{risk_metrics.get('prob_loss', 0):.1f}%")
+        else:
+            st.info("No risk metrics available")
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; color: #8892B0; padding: 20px;">
+        <p>Powered by XGBoost, SHAP, and Gemini AI</p>
+        <p>Data updated every 5 minutes | Model accuracy: 81.7%</p>
+    </div>
+    """, unsafe_allow_html=True)
 
-def render_batch_analysis():
-    """Render batch analysis page"""
-    st.markdown("## 📊 Batch Analysis")
-    st.info("Batch analysis - Coming soon")
-
-def render_dashboard():
-    """Render main dashboard"""
-    st.markdown("## 📊 Executive Dashboard")
-    st.info("Dashboard view - Coming soon")
-
-# Run the app
 if __name__ == "__main__":
     main()
