@@ -27,6 +27,7 @@ from pathlib import Path
 from datetime import datetime, date
 import xgboost as xgb
 from scipy import stats as sp_stats
+import os
 
 from financial_reasoning_agent import generate_executive_summary
 from portfolio_strategy_decision_engine import recommend_strategy

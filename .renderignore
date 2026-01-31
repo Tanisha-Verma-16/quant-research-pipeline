@@ -1,0 +1,25 @@
+# Don't upload these to Render (saves build time)
+
+_.pyc
+**pycache**/
+.git/
+.gitignore
+.env
+.venv/
+venv/
+_.egg-info/
+.DS_Store
+.vscode/
+.idea/
+
+# Large data files (regenerate on server or use external storage)
+
+data/_.parquet
+simulation_results/_.npy
+
+# Development files
+
+tests/
+.pytest_cache/
+notebooks/
+\*.ipynb
