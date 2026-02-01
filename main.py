@@ -19,6 +19,7 @@ Run: uvicorn main:app --reload
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from datetime import datetime
 from typing import List, Dict, Optional, Any
 import polars as pl
 import numpy as np
@@ -160,7 +161,7 @@ app = FastAPI(
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 
 # For production deployment, set this environment variable:
-# ALLOWED_ORIGINS=https://your-app.streamlit.app,https://your-app.onrender.com
+#ALLOWED_ORIGINS=https://your-app.streamlit.app,https://your-app.onrender.com
 
 app.add_middleware(
     CORSMiddleware,
@@ -274,12 +275,12 @@ async def root():
 # HEALTH CHECK ENDPOINT (for Render)
 # ============================================================================
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
-    """Health check endpoint for container orchestration."""
+    """Health check endpoint for uptime monitors and container orchestration."""
     return {
         "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
+        "timestamp": datetime.utcnow().isoformat(),
         "service": "quant-research-api"
     }
 # ----------------------------------------------------------------------------
